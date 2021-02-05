@@ -1,0 +1,56 @@
+<launch>
+
+  <!-- Debug mode -->
+  <arg name="debug" default="false" />
+
+   <param name="robot_description" command="$(find xacro)/xacro '$(find model_human)/urdf/model_human.xacro'" /> 
+
+  <!-- Launch Gazebo -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find humansarm_moveit_config)/worlds/empty.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="recording" value="false"/>
+        <arg name="debug" value="$(arg debug)"/>
+    </include>
+
+        <arg name="x" default="0"/>
+        <arg name="y" default="0"/>
+        <arg name="z" default="0"/>   
+
+     <node name="human_spawn" pkg="gazebo_ros" type="spawn_model"  output="screen"  
+              args="-urdf -param robot_description -model mhuman -x $(arg x) -y $(arg y) -z $(arg z)" /> 
+
+
+  <!-- Load the SRDF and other configuration files -->
+  <include file="$(find humansarm_moveit_config)/launch/planning_context.launch"/>
+
+  <!-- Run the main MoveIt executable -->
+  <include file="$(find humansarm_moveit_config)/launch/move_group.launch">
+    <arg name="allow_trajectory_execution" value="true"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="info" value="true"/>
+  </include>
+  
+
+<!--  <rosparam command="load" file="$(find humansarm_moveit_config)/config/joint_names.yaml"/>
+
+  <include file="$(find humansarm_moveit_config)/launch/planning_context.launch">
+   <arg name="load_robot_description" value="true"/>
+  </include>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="/use_gui" value="false"/>
+    <rosparam param="/source_list">[/joint_states]</rosparam>
+  </node> 
+
+  <include file="$(find humansarm_moveit_config)/launch/move_group.launch">
+   <arg name="publish_monitored_planning_scene" value="true"/>
+  </include>
+
+  <include file="$(find humansarm_moveit_config)/launch/moveit_gazebo.launch">
+   <arg name="config" value="true"/>
+  </include>
+-->
+</launch>
